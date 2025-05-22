@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>File Upload & Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+
+      .upload-form,
+      .image-gallery {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .upload-form {
+        margin-bottom: 40px;
+      }
+
+      .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .image-container {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
+
+      .download-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease-in-out;
+      }
+
+      .image-container:hover .download-overlay {
+        opacity: 1;
+      }
+
+      .download-overlay a {
+        background: #ffffffcc;
+        border: 1px solid #ccc;
+        padding: 6px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .download-overlay a:hover {
+        background-color: #f8f9fa;
+        color: #000;
+      }
+      .alert {
+        transition: opacity 0.25s ease-in-out;
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <!-- Upload Form -->
+      <div class="upload-form mx-auto" style="max-width: 500px">
+        <h3 class="mb-4 text-center">Upload a File</h3>
+
+        <% if (success) { %>
+        <div class="alert alert-success" id="successMsg"><%= success %></div>
+        <% } %> <% if (error) { %>
+        <div class="alert alert-danger" id="errorMsg"><%= error %></div>
+        <% } %>
+
+        <form
+          id="uploadForm"
+          action="/upload"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <div class="mb-3">
+            <label for="file" class="form-label">Choose a file</label>
+            <input
+              class="form-control"
+              type="file"
+              name="file"
+              id="file"
+              required
+            />
+            <div class="form-text">
+              Only PDF, JPEG, PNG, or TXT. Max size: 5MB.
+            </div>
+            <div
+              id="errorText"
+              class="text-danger mt-2"
+              style="display: none"
+            ></div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Upload</button>
+        </form>
+      </div>
+
+      <!-- Image Gallery -->
+      <div class="image-gallery mx-auto mt-5" style="max-width: 1000px">
+        <h3 class="mb-4 text-center">Uploaded Images</h3>
+
+        <% if (!images || images.length === 0) { %>
+        <p class="text-muted text-center">No files uploaded yet.</p>
+        <% } else { %>
+        <div class="image-grid">
+          <% images.forEach(image => { const extension =
+          image.split('.').pop().toLowerCase(); %>
+          <div class="image-container">
+            <% if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) { %>
+            <img src="/uploads/<%= image %>" alt="<%= image %>" />
+            <% } else if (extension === 'pdf'){ %>
+            <div class="pdf-icon-container">
+              <img src="/icons/pdf.png" class="pdf-icon" alt="PDF file" />
+            </div>
+            <% } else if (extension === 'txt') { %>
+            <div class="pdf-icon-container">
+              <img src="/icons/txt-file.png" class="text-icon" alt="text" />
+            </div>
+            <% } %>
+            <div class="download-overlay">
+              <a href="/download/<%= image %>" download>Download</a>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+    </div>
+  </body>
+</html>
